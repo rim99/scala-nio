@@ -1,7 +1,9 @@
-import org.junit.Test
-import org.junit.Assert.*
+import org.scalatest.funspec.AnyFunSpec
 
-class TestExample:
-  val msg = "I was compiled by Scala 3. :)"
-  @Test def it_should_show_message(): Unit =
-    assertEquals("I was compiled by Scala 3. :)", msg)
+class TestExample extends AnyFunSpec:
+  describe("Test"){
+    it("should execute"){
+      val msg = "I was compiled by Scala 3. :)"
+      assert("I was compiled by Scala 3. :)" == msg)
+    }
+  }

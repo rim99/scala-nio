@@ -12,7 +12,7 @@ lazy val nio4s = project.in(file("."))
   )
 
 val testDep = Seq(
-  "com.github.sbt" % "junit-interface" %  "0.13.2" % Test
+  "org.scalatest" %% "scalatest" % "3.2.10" % "test"
 )
 
 scalacOptions ++= {
