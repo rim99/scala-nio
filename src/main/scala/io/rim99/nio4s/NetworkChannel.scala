@@ -1,4 +1,4 @@
-package io.rim99.qin
+package io.rim99.nio4s
 
 import java.net.{Socket, SocketAddress, SocketOption}
 import java.nio.channels.Channel as JChannel

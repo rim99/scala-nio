@@ -1,40 +1,20 @@
-package io.rim99.qin
+package io.rim99.nio4s
 
 import java.net.{Socket, InetAddress, SocketOption}
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
-import scala.jdk.CollectionConverters.*
 import scala.concurrent.Future
 import scala.util.Try
 
 trait SocketChannel extends NetworkChannel:
 
-  val socket: Socket
+  def getLocalAddress: Option[InetAddress]
 
-  def getLocalAddress: Option[InetAddress] =
-    Try(Option(socket.getLocalAddress)).toOption.flatten
+  def getRemoteAddress: Option[InetAddress]
 
-  def getRemoteAddress: Option[InetAddress] =
-    Try(Option(socket.getInetAddress)).toOption.flatten
-    
-  def getLocalPort: Option[Int] =
-    val port = socket.getLocalPort
-    Option.when(port != -1)(port)
+  def getLocalPort: Option[Int]
 
-  def getRemotePort: Option[Int] =
-    val port = socket.getPort
-    Option.when(port != -1)(port)
-    
-  override def getOption[T](name: SocketOption[T]): Try[T] =
-    Try(socket.getOption(name))
-
-  override def supportedOptions: Set[SocketOption[?]] =
-    socket.supportedOptions().asScala.toSet
-
-  override def setOption[T](
-    name: SocketOption[T],
-    value: T
-  ): Try[Unit] = Try(socket.setOption(name, value))
+  def getRemotePort: Option[Int]
 
   def shutdownInput: Try[Unit]
 

@@ -1,13 +1,13 @@
-package io.rim99.qin
+package io.rim99.nio4s.jvm
+
+import io.rim99.nio4s.ServerSocketChannel
 
 import java.net.{InetAddress, ServerSocket, SocketOption}
-import scala.concurrent.Future
 import scala.util.Try
 import scala.jdk.CollectionConverters.*
 
-trait ServerSocketChannel extends NetworkChannel:
-
-  val socket: ServerSocket
+abstract class AbstractServerSocketChannel extends ServerSocketChannel:
+  protected val socket: ServerSocket
 
   def getLocalAddress: Option[InetAddress] =
     Try(Option(socket.getInetAddress)).toOption.flatten
@@ -16,7 +16,7 @@ trait ServerSocketChannel extends NetworkChannel:
     val port = socket.getLocalPort
     Option.when(port != -1)(port)
 
-  override def getOption[T](name: SocketOption[T]): Try[T] = 
+  override def getOption[T](name: SocketOption[T]): Try[T] =
     Try(socket.getOption(name))
 
   override def supportedOptions: Set[SocketOption[?]] =
@@ -26,6 +26,3 @@ trait ServerSocketChannel extends NetworkChannel:
     name: SocketOption[T],
     value: T
   ): Try[Unit] = Try(socket.setOption(name, value))
-
-  def accept: Future[SocketChannel]
-

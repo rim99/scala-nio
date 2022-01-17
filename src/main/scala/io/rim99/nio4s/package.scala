@@ -1,4 +1,4 @@
 package io.rim99
 
-package object qin:
+package object nio4s:
   type Maybe[A] = Either[Throwable, A]
