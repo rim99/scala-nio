@@ -1,15 +1,18 @@
-val scala3Version = "3.1.0"
+ThisBuild / organization := "io.rim99"
+ThisBuild / scalaVersion := "3.1.0"
+ThisBuild / version      := "0.1.0-SNAPSHOT"
 
-lazy val root = project
-  .in(file("."))
+lazy val nio4s = project.in(file("."))
   .settings(
     name := "nio4s",
-    version := "0.1.0-SNAPSHOT",
-    scalaVersion := scala3Version
+  )
+  .aggregate(
+    `core`,
+    `jvm`,
   )
 
-libraryDependencies ++= Seq(
-  "com.novocode" % "junit-interface" % "0.11" % "test"
+val testDep = Seq(
+  "com.github.sbt" % "junit-interface" %  "0.13.2" % Test
 )
 
 scalacOptions ++= {
@@ -26,3 +29,14 @@ scalacOptions ++= {
     // "-Xfatal-warnings"
   )
 }
+
+lazy val core = project.in(file("core"))
+  .settings(
+    libraryDependencies ++= testDep
+  )
+
+lazy val jvm = project.in(file("jvm"))
+  .dependsOn(core)
+  .settings(
+    libraryDependencies ++= testDep
+  )
