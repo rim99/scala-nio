@@ -6,7 +6,8 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.Future
 import scala.util.Try
 
-trait SocketChannel extends NetworkChannel:
+trait TcpConnection extends NetworkChannel:
+  val NEVER = -1L
 
   def getLocalAddress: Option[InetAddress]
 
@@ -20,30 +21,30 @@ trait SocketChannel extends NetworkChannel:
 
   def shutdownOutput: Try[Unit]
 
-  def read[A](
+  def read(
     dst: ByteBuffer,
-    timeout: Long = 0L,
+    timeout: Long = NEVER,
     unit: TimeUnit = TimeUnit.MILLISECONDS
-  ): Future[Maybe[Integer]]
+  ): Future[Maybe[Int]]
 
-  def readAll[A](
+  def readAll(
     dst: Array[ByteBuffer],
     offset: Int,
     length: Int,
-    timeout: Long = 0L,
+    timeout: Long = NEVER,
     unit: TimeUnit = TimeUnit.MILLISECONDS
   ): Future[Maybe[Long]]
 
-  def write[A](
+  def write(
     src: ByteBuffer,
-    timeout: Long = 0L,
+    timeout: Long = NEVER,
     unit: TimeUnit = TimeUnit.MILLISECONDS
-  ): Future[Maybe[Integer]]
+  ): Future[Maybe[Int]]
 
-  def writeAll[A](
+  def writeAll(
     src: Array[ByteBuffer],
     offset: Int,
     length: Int,
-    timeout: Long = 0L,
+    timeout: Long = NEVER,
     unit: TimeUnit = TimeUnit.MILLISECONDS
-  ): Future[Maybe[Integer]]
+  ): Future[Maybe[Long]]
