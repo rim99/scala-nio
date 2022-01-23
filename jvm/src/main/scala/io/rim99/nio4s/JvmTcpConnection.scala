@@ -47,27 +47,27 @@ class JvmTcpConnection(val socket: SocketChannel) extends TcpConnection:
 
   def shutdownOutput: Try[Unit] = Try(socket.shutdownOutput())
 
-  def read(dst: ByteBuffer, timeout: Long, unit: TimeUnit): Future[Maybe[Int]] =
-    // TODO: generated read event and create timer event then return Future
-    if timeout == NEVER then
-      ()
-    else
-      ()
-    Future.successful {
-      Try(socket.read(dst)).toEither
-    }
+  def read(dst: ByteBuffer, timeout: Long, unit: TimeUnit): Maybe[Int] =
+    // TODO: generated read event and create timer event
+    Try(socket.read(dst)).toEither
 
-  def readAll(dst: Array[ByteBuffer], offset: Int, length: Int, timeout: Long, unit: TimeUnit): Future[Maybe[Long]] =
-    Future.successful {
-      Try(socket.read(dst)).toEither
-    }
+  def readAll(
+    dst: Array[ByteBuffer],
+    offset: Int,
+    length: Int,
+    timeout: Long,
+    unit: TimeUnit
+  ): Maybe[Long] =
+    Try(socket.read(dst)).toEither
 
-  def write(src: ByteBuffer, timeout: Long, unit: TimeUnit): Future[Maybe[Int]] =
-    Future.successful {
-      Try(socket.write(src)).toEither
-    }
+  def write(src: ByteBuffer, timeout: Long, unit: TimeUnit): Maybe[Int] =
+    Try(socket.write(src)).toEither
 
-  def writeAll(src: Array[ByteBuffer], offset: Int, length: Int, timeout: Long, unit: TimeUnit): Future[Maybe[Long]] =
-    Future.successful {
-      Try(socket.write(src)).toEither
-    }
+  def writeAll(
+    src: Array[ByteBuffer],
+    offset: Int,
+    length: Int,
+    timeout: Long,
+    unit: TimeUnit
+  ): Maybe[Long] =
+    Try(socket.write(src)).toEither

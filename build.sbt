@@ -11,6 +11,10 @@ lazy val nio4s = project.in(file("."))
     `jvm`,
   )
 
+val srcDep = Seq(
+  "com.outr" %% "scribe" % "3.6.10"
+)
+
 val testDep = Seq(
   "org.scalatest" %% "scalatest" % "3.2.10" % "test"
 )
@@ -32,11 +36,11 @@ scalacOptions ++= {
 
 lazy val core = project.in(file("core"))
   .settings(
-    libraryDependencies ++= testDep
+    libraryDependencies ++= testDep ++ srcDep
   )
 
 lazy val jvm = project.in(file("jvm"))
   .dependsOn(core)
   .settings(
-    libraryDependencies ++= testDep
+    libraryDependencies ++= testDep ++ srcDep
   )

@@ -6,14 +6,14 @@ import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
 
 class JvmEventProcessor extends EventProcessor:
-  override def processAcceptableEvents(a: List[AcceptableEvent]): Unit = a.foreach { ev =>
-    val key = ev.asInstanceOf[JvmAcceptableEvent].key
-    val selector = key.selector
-    val listenSock = key.channel().asInstanceOf[ServerSocketChannel]
-    val client = listenSock.accept
-    client.configureBlocking(false)
-    val conn = new JvmTcpConnection(client)
-    client.register(selector, SelectionKey.OP_READ, conn)
+  override def processAcceptableEvents(a: List[AcceptableEvent]): Unit = a.foreach { e =>
+    val event = e.asInstanceOf[JvmAcceptableEvent]
+    val poller = event.poller
+    val listenSock = event.key.channel().asInstanceOf[ServerSocketChannel]
+    val newSock = listenSock.accept
+    newSock.configureBlocking(false) //TODO: where to put the configuring logic
+    val newConn = new JvmTcpConnection(newSock)
+    poller.addForReading(newConn)
   }
   override def processConnectableEvents(a: List[ConnectableEvent]): Unit = ()
   override def processWritableEvents(a: List[WritableEvent]): Unit = ()
@@ -29,29 +29,34 @@ class JvmEventProcessor extends EventProcessor:
 
   given simpleEc: ExecutionContext = new ExecutionContext {
     override def execute(runnable: Runnable): Unit = runnable.run()
-    override def reportFailure(cause: Throwable): Unit = println(cause)
+    override def reportFailure(cause: Throwable): Unit = Logger.trace(cause.toString)
   }
 
   def answerWithEcho(buffer: ByteBuffer, key: SelectionKey): Unit =
     // process
     val conn = key.attachment().asInstanceOf[JvmTcpConnection]
     conn.read(buffer)
-      // TODO: important: do we really need this future?
-      .map { _ =>
-          if new String(buffer.array).trim == "STOP" then
+      .fold(
+        { (ex: Throwable) =>
+          Logger.trace(s"Read failed: $ex")
+          conn.close()
+          key.cancel()
+        },
+        { (size: Int) =>
+          if size == 0 then
             conn.close()
-            System.out.println("Not accepting client messages anymore")
+            key.cancel()
+            ()
+          else if new String(buffer.array).trim == "STOP" then
+            conn.close()
+            Logger.trace("Not accepting client messages anymore")
           else
-            Try {
-              val r = ByteBuffer.wrap(response)
-              conn.write(r)
-            } match {
-              case Success(_) => ()
-              case Failure(_) =>
-                conn.close()
-                key.cancel()
+            val r = ByteBuffer.wrap(response)
+            conn.write(r).left.map { ex =>
+              Logger.trace(s"Write failed: $ex")
+              conn.close()
+              key.cancel()
             }
             buffer.clear
-          ()
-      }
-
+        }
+      )
