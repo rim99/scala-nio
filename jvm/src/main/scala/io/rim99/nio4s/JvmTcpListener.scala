@@ -1,43 +1,51 @@
 package io.rim99.nio4s
 
-import io.rim99.nio4s.{Maybe, TcpListener, TcpConnection}
+import io.rim99.nio4s.{TcpConnection, TcpListener}
 
 import java.net.{InetAddress, InetSocketAddress, ServerSocket, SocketOption}
-import java.nio.channels.ServerSocketChannel as JServerSocketChannel
+import java.nio.channels.{ServerSocketChannel, SocketChannel}
 import scala.concurrent.Future
 import scala.util.Try
 import scala.jdk.CollectionConverters.*
 
-class JvmTcpListener(port: Int) extends TcpListener:
+class JvmTcpListener(
+  val port: Int,
+  val poller: JvmPoller
+) extends TcpListener:
 
-  val socket: ServerSocket =
-    val s = JServerSocketChannel.open
+  val socket: ServerSocketChannel =
+    val s = ServerSocketChannel.open
     s.bind(new InetSocketAddress(port))
     s.configureBlocking(false)
-    s.socket()
+    s
 
   override def close(): Unit =
     // TODO: graceful shutdown
     socket.close()
 
-  override def isOpen: Boolean = !socket.isClosed
+  override def isOpen: Boolean = !socket.socket().isClosed
 
   def getLocalAddress: Option[InetAddress] =
-    Try(Option(socket.getInetAddress)).toOption.flatten
+    Try(Option(socket.socket().getInetAddress)).toOption.flatten
 
   def getLocalPort: Option[Int] =
-    val port = socket.getLocalPort
+    val port = socket.socket().getLocalPort
     Option.when(port != -1)(port)
 
   override def getOption[T](name: SocketOption[T]): Try[T] =
-    Try(socket.getOption(name))
+    Try(socket.socket().getOption(name))
 
   override def supportedOptions: Set[SocketOption[?]] =
-    socket.supportedOptions().asScala.toSet
+    socket.socket().supportedOptions().asScala.toSet
 
   override def setOption[T](
     name: SocketOption[T],
     value: T
-  ): Try[Unit] = Try(socket.setOption(name, value))
+  ): Try[Unit] = Try(socket.socket().setOption(name, value))
 
-  override def accept: Future[Maybe[TcpConnection]] = ???
+  override def accept: Try[TcpConnection] =
+    Try(socket.accept().configureBlocking(false))
+      .map(_.asInstanceOf[SocketChannel])
+      .map(new JvmTcpConnection(_, poller.selector)) // TODO: pick thread
+
+  def onAccept(): Unit = () // configure accepted sock

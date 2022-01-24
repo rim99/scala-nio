@@ -11,5 +11,5 @@ trait TcpListener extends NetworkChannel:
 
   def getLocalPort: Option[Int]
 
-  def accept: Future[Maybe[TcpConnection]]
+  def accept: Try[TcpConnection]
 

@@ -25,7 +25,7 @@ trait TcpConnection extends NetworkChannel:
     dst: ByteBuffer,
     timeout: Long = NEVER,
     unit: TimeUnit = TimeUnit.MILLISECONDS
-  ): Maybe[Int]
+  ): Try[Int]
 
   def readAll(
     dst: Array[ByteBuffer],
@@ -33,13 +33,13 @@ trait TcpConnection extends NetworkChannel:
     length: Int,
     timeout: Long = NEVER,
     unit: TimeUnit = TimeUnit.MILLISECONDS
-  ): Maybe[Long]
+  ): Try[Long]
 
   def write(
     src: ByteBuffer,
     timeout: Long = NEVER,
     unit: TimeUnit = TimeUnit.MILLISECONDS
-  ): Maybe[Int]
+  ): Try[Int]
 
   def writeAll(
     src: Array[ByteBuffer],
@@ -47,4 +47,8 @@ trait TcpConnection extends NetworkChannel:
     length: Int,
     timeout: Long = NEVER,
     unit: TimeUnit = TimeUnit.MILLISECONDS
-  ): Maybe[Long]
+  ): Try[Long]
+
+  def prepareForReading(): Unit
+  
+  def processInbound(): Unit
