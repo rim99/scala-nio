@@ -1,13 +1,16 @@
 package io.rim99.nio4s
 
-import io.rim99.nio4s.{TcpListener, TcpConnection, Events}
+import io.rim99.nio4s.Events
+import io.rim99.nio4s.internal.{JvmTcpConnection, JvmTcpListener, TcpConnection, TcpListener}
 
 import java.nio.channels.{SelectionKey, Selector}
 import scala.jdk.CollectionConverters.*
 
 class JvmPoller(val selector: Selector = Selector.open()) extends Poller:
-  // multiple selectors with threads in this class
+  val w = new JvmWorker(selector)
 
+  override def pickWorker: Worker = w
+  
   override def addListener(listener: TcpListener): Unit =
     listener
       .asInstanceOf[JvmTcpListener]
@@ -46,3 +49,5 @@ class JvmPoller(val selector: Selector = Selector.open()) extends Poller:
       s"Events: ${events._1.size}, ${events._2.size}, ${events._3.size}, ${events._4.size}"
     )
     events
+
+class JvmWorker(val selector: Selector) extends Worker

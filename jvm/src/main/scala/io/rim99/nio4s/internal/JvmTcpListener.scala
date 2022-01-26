@@ -1,16 +1,18 @@
-package io.rim99.nio4s
+package io.rim99.nio4s.internal
 
-import io.rim99.nio4s.{TcpConnection, TcpListener}
+import io.rim99.nio4s.*
+import io.rim99.nio4s.internal.TcpListener
 
 import java.net.{InetAddress, InetSocketAddress, ServerSocket, SocketOption}
 import java.nio.channels.{ServerSocketChannel, SocketChannel}
 import scala.concurrent.Future
-import scala.util.Try
 import scala.jdk.CollectionConverters.*
+import scala.util.Try
 
 class JvmTcpListener(
   val port: Int,
-  val poller: JvmPoller
+  val poller: JvmPoller,
+  val connectionProtocol: Protocol
 ) extends TcpListener:
 
   val socket: ServerSocketChannel =
@@ -43,9 +45,16 @@ class JvmTcpListener(
     value: T
   ): Try[Unit] = Try(socket.socket().setOption(name, value))
 
-  override def accept: Try[TcpConnection] =
-    Try(socket.accept().configureBlocking(false))
-      .map(_.asInstanceOf[SocketChannel])
-      .map(new JvmTcpConnection(_, poller.selector)) // TODO: pick thread
+  override def accept: Try[TcpChannel] =
+    Try {
+      socket
+        .accept()
+        .configureBlocking(false)
+        .asInstanceOf[SocketChannel]
+    }.map { sc =>
+      val worker = poller.pickWorker.asInstanceOf[JvmWorker]
+      val c = new JvmTcpConnection(sc, worker)
+      new TcpChannel(c, connectionProtocol)
+    }
 
   def onAccept(): Unit = () // configure accepted sock

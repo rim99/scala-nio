@@ -1,9 +1,10 @@
-package io.rim99.nio4s
+package io.rim99.nio4s.internal
 
-import java.net.{Socket, InetAddress, SocketOption}
+import io.rim99.nio4s.{IOError, NetworkChannel, TcpChannel}
+
+import java.net.InetAddress
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
-import scala.concurrent.Future
 import scala.util.Try
 
 trait TcpConnection extends NetworkChannel:
@@ -25,30 +26,28 @@ trait TcpConnection extends NetworkChannel:
     dst: ByteBuffer,
     timeout: Long = NEVER,
     unit: TimeUnit = TimeUnit.MILLISECONDS
-  ): Try[Int]
+  ): Either[IOError, Int]
 
-  def readAll(
+  def scatterRead(
     dst: Array[ByteBuffer],
     offset: Int,
     length: Int,
     timeout: Long = NEVER,
     unit: TimeUnit = TimeUnit.MILLISECONDS
-  ): Try[Long]
+  ): Either[IOError, Long]
 
   def write(
     src: ByteBuffer,
     timeout: Long = NEVER,
     unit: TimeUnit = TimeUnit.MILLISECONDS
-  ): Try[Int]
+  ): Either[IOError, Int]
 
-  def writeAll(
+  def gatherWrite(
     src: Array[ByteBuffer],
     offset: Int,
     length: Int,
     timeout: Long = NEVER,
     unit: TimeUnit = TimeUnit.MILLISECONDS
-  ): Try[Long]
+  ): Either[IOError, Long]
 
-  def prepareForReading(): Unit
-  
-  def processInbound(): Unit
+  def prepareForReading(c: TcpChannel): Unit

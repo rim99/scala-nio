@@ -1,19 +1,24 @@
-package io.rim99.nio4s
+package io.rim99.nio4s.internal
 
-import io.rim99.nio4s.TcpConnection
+import io.rim99.nio4s.{IOError, IOErrors, JvmWorker, TcpChannel}
+import io.rim99.nio4s.internal.TcpConnection
 
 import java.net.{InetAddress, SocketOption}
 import java.nio.ByteBuffer
 import java.nio.channels.{SelectionKey, Selector, SocketChannel}
 import java.util.concurrent.TimeUnit
 import scala.concurrent.Future
-import scala.util.Try
 import scala.jdk.CollectionConverters.*
+import scala.util.{Failure, Success, Try}
 
 class JvmTcpConnection(
   val socket: SocketChannel,
-  val selector: Selector
+  val worker: JvmWorker
 ) extends TcpConnection:
+
+  override def prepareForReading(attachment: TcpChannel): Unit =
+    socket.register(worker.selector, SelectionKey.OP_READ, attachment)
+    ()
 
   override def getLocalAddress: Option[InetAddress] =
     Try(Option(socket.socket().getLocalAddress)).toOption.flatten
@@ -42,7 +47,7 @@ class JvmTcpConnection(
 
   override def close(): Unit =
     // TODO: graceful shutdown
-    socket.keyFor(selector).cancel()
+    socket.keyFor(worker.selector).cancel()
     socket.close()
 
   override def isOpen: Boolean = !socket.socket().isClosed
@@ -55,60 +60,48 @@ class JvmTcpConnection(
     dst: ByteBuffer,
     timeout: Long,
     unit: TimeUnit
-  ): Try[Int] =
+  ): Either[IOError, Int] =
     // TODO: generated read event and create timer event
-    Try(socket.read(dst))
+    Try(socket.read(dst)).wrap
 
-  override def readAll(
+  override def scatterRead(
     dst: Array[ByteBuffer],
     offset: Int,
     length: Int,
     timeout: Long,
     unit: TimeUnit
-  ): Try[Long] =
+  ): Either[IOError, Long] =
     Try(socket.read(dst))
+      .toEither
+      .left
+      .map(_ => IOErrors.EOF)
 
   override def write(
     src: ByteBuffer,
     timeout: Long,
     unit: TimeUnit
-  ): Try[Int] =
-    Try(socket.write(src))
+  ): Either[IOError, Int] =
+    Try(socket.write(src)).wrap
 
-  override def writeAll(
+  override def gatherWrite(
     src: Array[ByteBuffer],
     offset: Int,
     length: Int,
     timeout: Long,
     unit: TimeUnit
-  ): Try[Long] =
+  ): Either[IOError, Long] =
     Try(socket.write(src))
+      .toEither
+      .left
+      .map(_ => IOErrors.EOF)
 
-  override def prepareForReading(): Unit =
-    socket.register(selector, SelectionKey.OP_READ, this)
-    ()
+  extension (ret: Try[Int])
 
-  override def processInbound(): Unit =
-    val buffer = ByteBuffer.allocate(256)
-    read(buffer)
-      .fold(
-        { (ex: Throwable) =>
-          Logger.trace(s"Read failed: $ex")
-          close()
-        },
-        { (size: Int) =>
-          if size == 0 then close()
-          else if new String(buffer.array).trim == "STOP" then
-            close()
-            Logger.trace("Not accepting client messages anymore")
-          else
-            val response =
-              "HTTP/1.1 200 OK\r\nServer: Nio4s\r\nConnection: keep-alive\r\nContent-Length: 5\r\n\r\nHello".getBytes
-            val r = ByteBuffer.wrap(response)
-            write(r).toEither.left.map { ex =>
-              Logger.trace(s"Write failed: $ex")
-              close()
-            }
-            buffer.clear
-        }
-      )
+    @inline
+    final def wrap: Either[IOError, Int] =
+      ret match
+        case Success(i: Int) if i >= 0 => Right(i)
+        case Success(-1) => Left(IOErrors.EOF)
+        case Success(other) =>
+          Left(IOErrors.Exception(s"Cannot handle value: $other"))
+        case Failure(ex) => Left(IOErrors.Exception(ex.getMessage))
