@@ -12,7 +12,7 @@ import scala.util.Try
 class JvmTcpListener(
   val port: Int,
   val poller: JvmPoller,
-  val connectionProtocol: Protocol
+  override val protocolFactory: ProtocolFactory
 ) extends TcpListener:
 
   val socket: ServerSocketChannel =
@@ -45,7 +45,7 @@ class JvmTcpListener(
     value: T
   ): Try[Unit] = Try(socket.socket().setOption(name, value))
 
-  override def accept: Try[TcpChannel] =
+  override def doAccept(): Try[TcpConnection] =
     Try {
       socket
         .accept()
@@ -53,8 +53,7 @@ class JvmTcpListener(
         .asInstanceOf[SocketChannel]
     }.map { sc =>
       val worker = poller.pickWorker.asInstanceOf[JvmWorker]
-      val c = new JvmTcpConnection(sc, worker)
-      new TcpChannel(c, connectionProtocol)
+      new JvmTcpConnection(sc, worker)
     }
 
   def onAccept(): Unit = () // configure accepted sock

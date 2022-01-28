@@ -1,6 +1,6 @@
 package io.rim99.nio4s.internal
 
-import io.rim99.nio4s.{IOError, NetworkChannel, TcpChannel}
+import io.rim99.nio4s.{IOError, NetworkChannel, TcpContext}
 
 import java.net.InetAddress
 import java.nio.ByteBuffer
@@ -50,4 +50,4 @@ trait TcpConnection extends NetworkChannel:
     unit: TimeUnit = TimeUnit.MILLISECONDS
   ): Either[IOError, Long]
 
-  def prepareForReading(c: TcpChannel): Unit
+  def prepareForReading(c: TcpContext): Unit

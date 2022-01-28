@@ -1,6 +1,6 @@
 package io.rim99.nio4s.internal
 
-import io.rim99.nio4s.{IOError, IOErrors, JvmWorker, TcpChannel}
+import io.rim99.nio4s.{IOError, IOErrors, JvmWorker, TcpContext}
 import io.rim99.nio4s.internal.TcpConnection
 
 import java.net.{InetAddress, SocketOption}
@@ -16,7 +16,7 @@ class JvmTcpConnection(
   val worker: JvmWorker
 ) extends TcpConnection:
 
-  override def prepareForReading(attachment: TcpChannel): Unit =
+  override def prepareForReading(attachment: TcpContext): Unit =
     socket.register(worker.selector, SelectionKey.OP_READ, attachment)
     ()
 

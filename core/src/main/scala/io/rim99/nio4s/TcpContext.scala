@@ -4,28 +4,27 @@ import io.rim99.nio4s.internal.TcpConnection
 
 import java.nio.ByteBuffer
 
-trait InBound
-
-class TcpChannel(
+class TcpContext(
   val conn: TcpConnection,
   val protocol: Protocol
-) extends InBound:
+):
 
   def close(): Unit =
     protocol.close()
     conn.close()
 
   def prepareForReading(): Unit =
-    conn.prepareForReading(TcpChannel.this)
+    conn.prepareForReading(TcpContext.this)
 
   def handleInput(): Unit =
     Logger.trace("handling input")
-    val buffer = ByteBuffer.allocate(256)
+    val buffer = ByteBuffer.allocate(256) // buffer pool needed here
     conn.read(buffer) match
       case Right(received) =>
-        val consumed = protocol.handle(TcpChannel.this, buffer, received)
+        val consumed = protocol.handle(TcpContext.this, buffer, received)
         buffer.clear // ??? should it be cleared here
       // compare: consumed & received
+      // while true when reading to buffer
       case Left(IOErrors.EOF) =>
         Logger.trace("Read failed: EOF")
         close()

@@ -2,15 +2,16 @@ package io.rim99.nio4s
 
 import io.rim99.nio4s.internal.TcpListener
 
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
-trait ReadableEvent:
-  def getTcpChannel: TcpChannel
+case class AcceptableEvent(listener: TcpListener):
+  def process: Try[TcpContext] = listener.accept
 
-trait WritableEvent
+case class ReadableEvent(ctx: TcpContext):
+  def process(): Unit = ctx.handleInput()
 
-trait AcceptableEvent:
-  def getListener: TcpListener
+trait WritableEvent:
+  def process(): Unit
 
 trait ConnectableEvent
 
@@ -31,21 +32,19 @@ trait EventProcessor:
 
   protected def processAcceptableEvents(a: List[AcceptableEvent]): Unit =
     a.foreach {
-      // this is server-style. For client it seems need to be prepared for writing ???
-      _.getListener.accept match {
+      _.process match {
         case Success(inbound) =>
           inbound.prepareForReading()
         case Failure(ex) =>
           // TODO: graceful shutdown
           Logger.trace(ex.toString)
       }
-
     }
 
-  protected def processConnectableEvents(a: List[ConnectableEvent]): Unit = ()
   protected def processWritableEvents(a: List[WritableEvent]): Unit = ()
 
   protected def processReadableEvents(a: List[ReadableEvent]): Unit =
-    a.foreach { 
-      _.getTcpChannel.handleInput() 
-    }
+    a.foreach(_.process())
+
+  protected def processConnectableEvents(a: List[ConnectableEvent]): Unit = ()
+

@@ -10,17 +10,13 @@ class JvmPoller(val selector: Selector = Selector.open()) extends Poller:
   val w = new JvmWorker(selector)
 
   override def pickWorker: Worker = w
-  
-  override def addListener(listener: TcpListener): Unit =
+
+  override def addListener(port: Int, factory: ProtocolFactory, transport: Transport = Transport.TCP): Unit =
+    val listener = new JvmTcpListener(port, this, factory)
     listener
       .asInstanceOf[JvmTcpListener]
       .socket
       .register(selector, SelectionKey.OP_ACCEPT, listener)
-
-  override def addForReading(c: TcpConnection): Unit =
-    c.asInstanceOf[JvmTcpConnection]
-      .socket
-      .register(selector, SelectionKey.OP_READ, c)
 
   override def poll(): Events =
     selector.select
@@ -30,13 +26,19 @@ class JvmPoller(val selector: Selector = Selector.open()) extends Poller:
         case ((a, b, c, d), key) =>
           (
             Option
-              .when(key.isAcceptable)(JvmAcceptableEvent(key, selector))
+              .when(key.isAcceptable) {
+                val listener = key.attachment().asInstanceOf[JvmTcpListener]
+                AcceptableEvent(listener)
+              }
               .toList ::: a,
             Option
               .when(key.isWritable)(JvmWritableEvent(key))
               .toList ::: b,
             Option
-              .when(key.isReadable)(JvmReadableEvent(key))
+              .when(key.isReadable) {
+                val ctx = key.attachment().asInstanceOf[TcpContext]
+                ReadableEvent(ctx)
+              }
               .toList ::: c,
             Option
               .when(key.isConnectable)(JvmConnectableEvent(key))

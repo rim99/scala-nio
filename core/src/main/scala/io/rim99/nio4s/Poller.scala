@@ -4,9 +4,16 @@ import io.rim99.nio4s.internal.{TcpConnection, TcpListener}
 
 trait Worker
 
+enum Transport:
+  case TCP
+
 trait Poller:
-  def addListener(l: TcpListener): Unit
-  def addForReading(c: TcpConnection): Unit
+
+  def addListener(
+    port: Int,
+    factory: ProtocolFactory,
+    transport: Transport = Transport.TCP
+  ): Unit
+
   def pickWorker: Worker
   def poll(): Events
-
