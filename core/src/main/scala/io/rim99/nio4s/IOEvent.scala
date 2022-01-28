@@ -22,7 +22,7 @@ type Events = (
   List[ConnectableEvent]
 )
 
-trait EventProcessor:
+class EventProcessor:
 
   final def process(events: Events): Unit =
     processAcceptableEvents(events._1)

@@ -1,22 +1,56 @@
 package io.rim99.nio4s
 
 import io.rim99.nio4s.Events
-import io.rim99.nio4s.internal.{JvmTcpConnection, JvmTcpListener, TcpConnection, TcpListener}
+import io.rim99.nio4s.internal.{
+  JvmTcpConnection,
+  JvmTcpListener,
+  TcpConnection,
+  TcpListener
+}
 
 import java.nio.channels.{SelectionKey, Selector}
+import java.util.concurrent.locks.ReentrantLock
 import scala.jdk.CollectionConverters.*
+import scala.util.{Failure, Success, Try}
 
-class JvmPoller(val selector: Selector = Selector.open()) extends Poller:
-  val w = new JvmWorker(selector)
+class JvmPoller(worker: Int = 1) extends Poller:
 
-  override def pickWorker: Worker = w
+  override val workers: Array[Worker] =
+    val cnt = if worker == 1 then worker else worker + 1
+    Array.fill(cnt)(new JvmWorker())
 
-  override def addListener(port: Int, factory: ProtocolFactory, transport: Transport = Transport.TCP): Unit =
-    val listener = new JvmTcpListener(port, this, factory)
-    listener
-      .asInstanceOf[JvmTcpListener]
-      .socket
-      .register(selector, SelectionKey.OP_ACCEPT, listener)
+  override def close(): Unit =
+    workers.foreach(_.close())
+
+  override def addListener(
+    port: Int,
+    factory: ProtocolFactory,
+    transport: Transport = Transport.TCP
+  ): Unit =
+    new JvmTcpListener(port, this, factory)
+      .registerOn(listenWorker.asInstanceOf[JvmWorker].selector)
+
+  def waitForever(): Unit =
+    val l = new ReentrantLock()
+    l.lock()
+    val cond = l.newCondition()
+    Logger.trace("wait on cond")
+    cond.await()
+
+  override def await(): Unit =
+    val shutdownCallback = new Runnable():
+      override def run(): Unit = JvmPoller.this.close()
+    Runtime.getRuntime.addShutdownHook(new Thread(shutdownCallback))
+    runAsync()
+    waitForever()
+
+class JvmWorker extends Worker:
+  val selector: Selector = Selector.open()
+
+  override def getLoad: Int = selector.keys().size()
+
+  override def close(): Unit =
+    Logger.trace(s"Worker ${this} closed with load: ${getLoad}")
 
   override def poll(): Events =
     selector.select
@@ -51,5 +85,3 @@ class JvmPoller(val selector: Selector = Selector.open()) extends Poller:
       s"Events: ${events._1.size}, ${events._2.size}, ${events._3.size}, ${events._4.size}"
     )
     events
-
-class JvmWorker(val selector: Selector) extends Worker

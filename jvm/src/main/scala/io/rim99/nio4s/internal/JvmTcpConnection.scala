@@ -18,6 +18,7 @@ class JvmTcpConnection(
 
   override def prepareForReading(attachment: TcpContext): Unit =
     socket.register(worker.selector, SelectionKey.OP_READ, attachment)
+    worker.selector.wakeup()
     ()
 
   override def getLocalAddress: Option[InetAddress] =

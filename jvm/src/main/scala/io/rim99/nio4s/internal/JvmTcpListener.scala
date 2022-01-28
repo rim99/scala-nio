@@ -4,7 +4,7 @@ import io.rim99.nio4s.*
 import io.rim99.nio4s.internal.TcpListener
 
 import java.net.{InetAddress, InetSocketAddress, ServerSocket, SocketOption}
-import java.nio.channels.{ServerSocketChannel, SocketChannel}
+import java.nio.channels.{SelectionKey, Selector, ServerSocketChannel, SocketChannel}
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 import scala.util.Try
@@ -57,3 +57,10 @@ class JvmTcpListener(
     }
 
   def onAccept(): Unit = () // configure accepted sock
+
+  def registerOn(selector: Selector): Unit =
+    socket.register(
+      selector,
+      SelectionKey.OP_ACCEPT,
+      this
+    )
