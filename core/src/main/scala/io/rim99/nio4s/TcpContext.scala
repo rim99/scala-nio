@@ -33,6 +33,7 @@ class TcpContext(
         close()
 
   def handleOutput(response: ByteBuffer): Unit =
+    // TODO: create write event
     conn.write(response).left.map { ex =>
       Logger.trace(s"Write failed: $ex")
       conn.close()

@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock
 import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}
 
-class JvmPoller(worker: Int = 1) extends Poller:
+class JvmConnectionManager(worker: Int = 1) extends ConnectionManager:
 
   override val workers: Array[Worker] =
     val cnt = if worker == 1 then worker else worker + 1
@@ -28,7 +28,7 @@ class JvmPoller(worker: Int = 1) extends Poller:
     transport: Transport = Transport.TCP
   ): Unit =
     new JvmTcpListener(port, this, factory)
-      .registerOn(listenWorker.asInstanceOf[JvmWorker].selector)
+      .registerOn(acceptor.asInstanceOf[JvmWorker].selector)
 
   def waitForever(): Unit =
     val l = new ReentrantLock()
@@ -39,7 +39,7 @@ class JvmPoller(worker: Int = 1) extends Poller:
 
   override def await(): Unit =
     val shutdownCallback = new Runnable():
-      override def run(): Unit = JvmPoller.this.close()
+      override def run(): Unit = JvmConnectionManager.this.close()
     Runtime.getRuntime.addShutdownHook(new Thread(shutdownCallback))
     runAsync()
     waitForever()
@@ -66,7 +66,10 @@ class JvmWorker extends Worker:
               }
               .toList ::: a,
             Option
-              .when(key.isWritable)(JvmWritableEvent(key))
+              .when(key.isWritable){
+                val ctx = key.attachment().asInstanceOf[TcpContext]
+                WritableEvent(ctx)
+              }
               .toList ::: b,
             Option
               .when(key.isReadable) {
@@ -75,7 +78,10 @@ class JvmWorker extends Worker:
               }
               .toList ::: c,
             Option
-              .when(key.isConnectable)(JvmConnectableEvent(key))
+              .when(key.isConnectable){
+                val ctx = key.attachment().asInstanceOf[TcpContext]
+                ConnectableEvent(ctx)
+              }
               .toList ::: d
           )
       }

@@ -4,14 +4,19 @@ import io.rim99.nio4s.*
 import io.rim99.nio4s.internal.TcpListener
 
 import java.net.{InetAddress, InetSocketAddress, ServerSocket, SocketOption}
-import java.nio.channels.{SelectionKey, Selector, ServerSocketChannel, SocketChannel}
+import java.nio.channels.{
+  SelectionKey,
+  Selector,
+  ServerSocketChannel,
+  SocketChannel
+}
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
 class JvmTcpListener(
   val port: Int,
-  val poller: JvmPoller,
+  val poller: JvmConnectionManager,
   override val protocolFactory: ProtocolFactory
 ) extends TcpListener:
 

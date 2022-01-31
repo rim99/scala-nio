@@ -1,7 +1,7 @@
 package io.rim99.nio4s.internal
 
-import io.rim99.nio4s.{IOError, IOErrors, JvmWorker, TcpContext}
 import io.rim99.nio4s.internal.TcpConnection
+import io.rim99.nio4s.{IOError, IOErrors, JvmWorker, TcpContext}
 
 import java.net.{InetAddress, SocketOption}
 import java.nio.ByteBuffer
@@ -72,9 +72,7 @@ class JvmTcpConnection(
     timeout: Long,
     unit: TimeUnit
   ): Either[IOError, Long] =
-    Try(socket.read(dst))
-      .toEither
-      .left
+    Try(socket.read(dst)).toEither.left
       .map(_ => IOErrors.EOF)
 
   override def write(
@@ -91,9 +89,7 @@ class JvmTcpConnection(
     timeout: Long,
     unit: TimeUnit
   ): Either[IOError, Long] =
-    Try(socket.write(src))
-      .toEither
-      .left
+    Try(socket.write(src)).toEither.left
       .map(_ => IOErrors.EOF)
 
   extension (ret: Try[Int])

@@ -23,6 +23,6 @@ object Example extends App:
           c.handleOutput(r)
         1
 
-  val poller = new JvmPoller(1)
-  poller.addListener(5454, mockHttpProtocolFactory)
-  poller.await()
+  val connMgr = new JvmConnectionManager(1)
+  connMgr.addListener(5454, mockHttpProtocolFactory)
+  connMgr.await()
