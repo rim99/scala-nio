@@ -1,6 +1,6 @@
-package io.rim99.nio4s
+package io.apilet.nio4s
 
-import io.rim99.nio4s.internal.TcpListener
+import io.apilet.nio4s.internal.TcpListener
 
 import scala.util.{Failure, Success, Try}
 

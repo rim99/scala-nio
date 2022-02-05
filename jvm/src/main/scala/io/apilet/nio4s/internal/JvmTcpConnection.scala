@@ -1,7 +1,7 @@
-package io.rim99.nio4s.internal
+package io.apilet.nio4s.internal
 
-import io.rim99.nio4s.internal.TcpConnection
-import io.rim99.nio4s.{IOError, IOErrors, JvmWorker, TcpContext}
+import io.apilet.nio4s.{IOError, IOErrors, JvmWorker, TcpContext}
+import io.apilet.nio4s.TcpContext
 
 import java.net.{InetAddress, SocketOption}
 import java.nio.ByteBuffer

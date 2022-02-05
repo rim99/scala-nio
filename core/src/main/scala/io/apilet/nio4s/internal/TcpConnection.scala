@@ -1,6 +1,7 @@
-package io.rim99.nio4s.internal
+package io.apilet.nio4s.internal
 
-import io.rim99.nio4s.{IOError, NetworkChannel, TcpContext}
+import io.apilet.nio4s.{IOError, NetworkChannel, TcpContext}
+import io.apilet.nio4s.NetworkChannel
 
 import java.net.InetAddress
 import java.nio.ByteBuffer

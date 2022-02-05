@@ -1,12 +1,8 @@
-package io.rim99.nio4s
+package io.apilet.nio4s
 
-import io.rim99.nio4s.Events
-import io.rim99.nio4s.internal.{
-  JvmTcpConnection,
-  JvmTcpListener,
-  TcpConnection,
-  TcpListener
-}
+import io.apilet.nio4s.internal.JvmTcpListener
+import io.apilet.nio4s.Events
+import io.apilet.nio4s.internal.JvmTcpConnection
 
 import java.nio.channels.{SelectionKey, Selector}
 import java.util.concurrent.locks.ReentrantLock
@@ -66,7 +62,7 @@ class JvmWorker extends Worker:
               }
               .toList ::: a,
             Option
-              .when(key.isWritable){
+              .when(key.isWritable) {
                 val ctx = key.attachment().asInstanceOf[TcpContext]
                 WritableEvent(ctx)
               }
@@ -78,7 +74,7 @@ class JvmWorker extends Worker:
               }
               .toList ::: c,
             Option
-              .when(key.isConnectable){
+              .when(key.isConnectable) {
                 val ctx = key.attachment().asInstanceOf[TcpContext]
                 ConnectableEvent(ctx)
               }

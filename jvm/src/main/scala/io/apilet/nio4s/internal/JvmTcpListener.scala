@@ -1,7 +1,7 @@
-package io.rim99.nio4s.internal
+package io.apilet.nio4s.internal
 
-import io.rim99.nio4s.*
-import io.rim99.nio4s.internal.TcpListener
+import io.apilet.nio4s.{JvmConnectionManager, JvmWorker, ProtocolFactory}
+import io.apilet.nio4s.*
 
 import java.net.{InetAddress, InetSocketAddress, ServerSocket, SocketOption}
 import java.nio.channels.{

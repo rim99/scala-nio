@@ -1,6 +1,7 @@
-package io.rim99.nio4s.internal
+package io.apilet.nio4s.internal
 
-import io.rim99.nio4s.{NetworkChannel, ProtocolFactory, TcpContext}
+import io.apilet.nio4s.{NetworkChannel, ProtocolFactory, TcpContext}
+import io.apilet.nio4s.ProtocolFactory
 
 import java.net.InetAddress
 import scala.util.Try

@@ -1,6 +1,6 @@
-package io.rim99.nio4s
+package io.apilet.nio4s
 
-import io.rim99.nio4s.internal.{TcpConnection, TcpListener}
+import io.apilet.nio4s.internal.TcpListener
 
 import java.util.concurrent.locks.ReentrantLock
 import scala.util.{Failure, Success, Try}

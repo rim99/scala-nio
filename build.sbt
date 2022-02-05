@@ -1,4 +1,4 @@
-ThisBuild / organization := "io.rim99"
+ThisBuild / organization := "io.apilet"
 ThisBuild / scalaVersion := "3.1.0"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
 
@@ -11,7 +11,7 @@ lazy val nio4s = project.in(file("."))
     `jvm`,
   )
 
-val srcDep = Seq(
+val loggingDep = Seq(
   "com.outr" %% "scribe" % "3.6.10"
 )
 
@@ -36,11 +36,11 @@ scalacOptions ++= {
 
 lazy val core = project.in(file("core"))
   .settings(
-    libraryDependencies ++= testDep ++ srcDep
+    libraryDependencies ++= testDep
   )
 
 lazy val jvm = project.in(file("jvm"))
   .dependsOn(core)
   .settings(
-    libraryDependencies ++= testDep ++ srcDep
+    libraryDependencies ++= testDep
   )

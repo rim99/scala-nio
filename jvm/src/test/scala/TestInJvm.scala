@@ -1,5 +1,5 @@
-import io.rim99.nio4s.*
-import io.rim99.nio4s.internal.JvmTcpListener
+import io.apilet.nio4s.internal.JvmTcpListener
+import io.apilet.nio4s.*
 import org.scalatest.funspec.AnyFunSpec
 
 import java.nio.ByteBuffer
