@@ -41,6 +41,7 @@ class JvmConnectionManager(worker: Int = 1) extends ConnectionManager:
     waitForever()
 
 class JvmWorker extends Worker:
+  override val bufferPool: ByteBufferPool = new ByteBufferPool
   val selector: Selector = Selector.open()
 
   override def getLoad: Int = selector.keys().size()

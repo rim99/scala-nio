@@ -1,6 +1,6 @@
 package io.apilet.nio4s.internal
 
-import io.apilet.nio4s.{IOError, IOErrors, JvmWorker, TcpContext}
+import io.apilet.nio4s.{IOError, IOErrors, JvmWorker, TcpContext, Worker}
 import io.apilet.nio4s.TcpContext
 
 import java.net.{InetAddress, SocketOption}
@@ -13,12 +13,13 @@ import scala.util.{Failure, Success, Try}
 
 class JvmTcpConnection(
   val socket: SocketChannel,
-  val worker: JvmWorker
+  override val worker: Worker
 ) extends TcpConnection:
 
   override def prepareForReading(attachment: TcpContext): Unit =
-    socket.register(worker.selector, SelectionKey.OP_READ, attachment)
-    worker.selector.wakeup()
+    val selector = worker.asInstanceOf[JvmWorker].selector
+    socket.register(selector, SelectionKey.OP_READ, attachment)
+    selector.wakeup()
     ()
 
   override def getLocalAddress: Option[InetAddress] =
@@ -48,7 +49,8 @@ class JvmTcpConnection(
 
   override def close(): Unit =
     // TODO: graceful shutdown
-    socket.keyFor(worker.selector).cancel()
+    val selector = worker.asInstanceOf[JvmWorker].selector
+    socket.keyFor(selector).cancel()
     socket.close()
 
   override def isOpen: Boolean = !socket.socket().isClosed

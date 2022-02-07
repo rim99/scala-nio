@@ -13,9 +13,6 @@ object Example extends App:
         if size == 0 then
           Logger.trace("Read size is ZERO:0") // probably nothing to care
           c.close()
-        else if new String(buffer.array).trim == "STOP" then
-          c.close()
-          Logger.trace("Not accepting client messages anymore")
         else
           val response =
             "HTTP/1.1 200 OK\r\nServer: Nio4s\r\nConnection: keep-alive\r\nContent-Length: 5\r\n\r\nHello".getBytes

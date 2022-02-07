@@ -1,6 +1,6 @@
 package io.apilet.nio4s.internal
 
-import io.apilet.nio4s.{IOError, NetworkChannel, TcpContext}
+import io.apilet.nio4s.{IOError, NetworkChannel, TcpContext, Worker}
 import io.apilet.nio4s.NetworkChannel
 
 import java.net.InetAddress
@@ -10,6 +10,8 @@ import scala.util.Try
 
 trait TcpConnection extends NetworkChannel:
   val NEVER = -1L
+
+  val worker: Worker
 
   def getLocalAddress: Option[InetAddress]
 

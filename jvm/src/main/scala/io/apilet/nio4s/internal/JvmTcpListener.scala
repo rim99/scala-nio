@@ -16,7 +16,7 @@ import scala.util.Try
 
 class JvmTcpListener(
   val port: Int,
-  val poller: JvmConnectionManager,
+  val connectionManager: ConnectionManager,
   override val protocolFactory: ProtocolFactory
 ) extends TcpListener:
 
@@ -56,9 +56,9 @@ class JvmTcpListener(
         .accept()
         .configureBlocking(false)
         .asInstanceOf[SocketChannel]
-    }.map { sc =>
-      val worker = poller.pickWorker.asInstanceOf[JvmWorker]
-      new JvmTcpConnection(sc, worker)
+    }.map { sock =>
+      val worker = connectionManager.pickWorker
+      new JvmTcpConnection(sock, worker)
     }
 
   def onAccept(): Unit = () // configure accepted sock

@@ -8,6 +8,7 @@ class TcpContext(
   val conn: TcpConnection,
   val protocol: Protocol
 ):
+  private val bufferPool = conn.worker.bufferPool
 
   def close(): Unit =
     protocol.close()
@@ -18,11 +19,10 @@ class TcpContext(
 
   def handleInput(): Unit =
     Logger.trace("handling input")
-    val buffer = ByteBuffer.allocate(256) // buffer pool needed here
-    conn.read(buffer) match
+    val buf = bufferPool.getBuffer
+    conn.read(buf) match
       case Right(received) =>
-        val consumed = protocol.handle(TcpContext.this, buffer, received)
-        buffer.clear // ??? should it be cleared here
+        val consumed = protocol.handle(TcpContext.this, buf, received)
       // compare: consumed & received
       // while true when reading to buffer
       case Left(IOErrors.EOF) =>
@@ -31,6 +31,7 @@ class TcpContext(
       case Left(IOErrors.Exception(msg)) =>
         Logger.trace(s"Read failed: $msg")
         close()
+    bufferPool.recycleBuffer(buf)    
 
   def handleOutput(response: ByteBuffer): Unit =
     // TODO: create write event

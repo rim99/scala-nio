@@ -28,6 +28,8 @@ trait ConnectionManager:
     else poller.minBy(_.getLoad)
 
 trait Worker extends Runnable:
+  
+  val bufferPool: ByteBufferPool
 
   private val t: Thread =
     val t = new Thread(Worker.this)
