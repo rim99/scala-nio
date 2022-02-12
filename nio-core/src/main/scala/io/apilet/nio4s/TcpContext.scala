@@ -24,8 +24,7 @@ class TcpContext(
     conn.prepare(TcpContext.this)
 
   def send(response: ByteBuffer): Unit =
-    if !writeNow(response) then
-      writingQueue.append(response)
+    if !writeNow(response) then writingQueue.append(response)
     else ()
 
   private[nio4s] def handleInput(): Unit =
@@ -57,4 +56,3 @@ class TcpContext(
         protocol.handleWriteError(TcpContext.this, err)
         conn.close()
         false
-

@@ -49,7 +49,7 @@ trait ConnectionManager:
     case WorkModes.Heavy(_) => poller.minBy(_.getLoad)
 
 trait Worker extends Runnable:
-  
+
   val bufferPool: ByteBufferPool
 
   private val t: Thread =

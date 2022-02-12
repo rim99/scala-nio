@@ -1,4 +1,5 @@
 import io.apilet.nio4s.*
+import scribe.trace as log
 
 import java.nio.ByteBuffer
 
@@ -10,16 +11,20 @@ object Example extends App:
       override def close(): Unit = ()
 
       override def handleReadError(c: TcpContext, error: IOError): Unit =
-        error match {
-          case IOErrors.EOF => scribe.info("Read failed: EOF")
-          case IOErrors.Exception(msg) => scribe.info(s"Read error: ${msg}")
-        }
-      override def handleWriteError(c: TcpContext, error: IOError): Unit =
-        scribe.info(s"Write failed: $error")
+        error match
+          case IOErrors.EOF => log("Read failed: EOF")
+          case IOErrors.Exception(msg) => log(s"Read error: ${msg}")
 
-      override def handleRead(c: TcpContext, buffer: ByteBuffer, size: Int): Boolean =
+      override def handleWriteError(c: TcpContext, error: IOError): Unit =
+        log(s"Write failed: $error")
+
+      override def handleRead(
+        c: TcpContext,
+        buffer: ByteBuffer,
+        size: Int
+      ): Boolean =
         if size == 0 then
-          scribe.info("Read size is ZERO:0") // probably nothing to care
+          log("Read size is ZERO:0") // probably nothing to care
           c.close()
         else
           val response =

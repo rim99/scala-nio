@@ -9,7 +9,8 @@ import java.util.concurrent.locks.ReentrantLock
 import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}
 
-class JvmConnectionManager(override val workMode: WorkMode) extends ConnectionManager:
+class JvmConnectionManager(override val workMode: WorkMode)
+    extends ConnectionManager:
 
   override def newWorker: Worker = new JvmWorker()
 
