@@ -53,4 +53,4 @@ trait TcpConnection extends NetworkChannel:
     unit: TimeUnit = TimeUnit.MILLISECONDS
   ): Either[IOError, Long]
 
-  def prepareForReading(c: TcpContext): Unit
+  def prepare(c: TcpContext): Unit

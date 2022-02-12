@@ -8,7 +8,7 @@ case class AcceptableEvent(listener: TcpListener):
 
   def process(): Unit = listener.accept match
     case Success(inbound) =>
-      inbound.prepareForReading()
+      inbound.prepare()
     case Failure(ex) =>
       // TODO: remove listener
       Logger.trace(ex.toString)
@@ -17,7 +17,7 @@ case class ReadableEvent(ctx: TcpContext):
   def process(): Unit = ctx.handleInput()
 
 case class WritableEvent(ctx: TcpContext):
-  def process(): Unit = ()
+  def process(): Unit = ctx.handleOutput()
 
 case class ConnectableEvent(ctx: TcpContext):
   def process(): Unit = ()

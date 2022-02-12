@@ -15,9 +15,9 @@ class JvmTcpConnection(
   override val worker: Worker
 ) extends TcpConnection:
 
-  override def prepareForReading(attachment: TcpContext): Unit =
+  override def prepare(attachment: TcpContext): Unit =
     val selector = worker.asInstanceOf[JvmWorker].selector
-    socket.register(selector, SelectionKey.OP_READ, attachment)
+    socket.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE, attachment)
     selector.wakeup()
     ()
 

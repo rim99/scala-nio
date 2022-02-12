@@ -25,7 +25,7 @@ object Example extends App:
           val response =
             "HTTP/1.1 200 OK\r\nServer: Nio4s\r\nConnection: keep-alive\r\nContent-Length: 5\r\n\r\nHello".getBytes
           val r = ByteBuffer.wrap(response)
-          c.handleOutput(r)
+          c.send(r)
         false
 
   val connMgr = new JvmConnectionManager(WorkModes.Light)
