@@ -9,14 +9,9 @@ import java.util.concurrent.locks.ReentrantLock
 import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}
 
-class JvmConnectionManager(worker: Int = 1) extends ConnectionManager:
+class JvmConnectionManager(override val workMode: WorkMode) extends ConnectionManager:
 
-  override val workers: Array[Worker] =
-    val cnt = if worker == 1 then worker else worker + 1
-    Array.fill(cnt)(new JvmWorker())
-
-  override def close(): Unit =
-    workers.foreach(_.close())
+  override def newWorker: Worker = new JvmWorker()
 
   override def addListener(
     port: Int,
@@ -26,19 +21,17 @@ class JvmConnectionManager(worker: Int = 1) extends ConnectionManager:
     new JvmTcpListener(port, this, factory)
       .registerOn(acceptor.asInstanceOf[JvmWorker].selector)
 
-  def waitForever(): Unit =
+  override def setSignalHandler(): Unit =
+    val shutdownCallback = new Runnable():
+      override def run(): Unit = JvmConnectionManager.this.close()
+    Runtime.getRuntime.addShutdownHook(new Thread(shutdownCallback))
+
+  override def waitForever(): Unit =
     val l = new ReentrantLock()
     l.lock()
     val cond = l.newCondition()
     Logger.trace("wait on cond")
     cond.await()
-
-  override def await(): Unit =
-    val shutdownCallback = new Runnable():
-      override def run(): Unit = JvmConnectionManager.this.close()
-    Runtime.getRuntime.addShutdownHook(new Thread(shutdownCallback))
-    runAsync()
-    waitForever()
 
 class JvmWorker extends Worker:
   override val bufferPool: ByteBufferPool = new ByteBufferPool

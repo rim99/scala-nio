@@ -1,4 +1,4 @@
-package io.apilet.nio4s
+import io.apilet.nio4s.*
 
 import java.nio.ByteBuffer
 
@@ -20,6 +20,6 @@ object Example extends App:
           c.handleOutput(r)
         1
 
-  val connMgr = new JvmConnectionManager(1)
+  val connMgr = new JvmConnectionManager(WorkModes.Light)
   connMgr.addListener(5454, mockHttpProtocolFactory)
   connMgr.await()

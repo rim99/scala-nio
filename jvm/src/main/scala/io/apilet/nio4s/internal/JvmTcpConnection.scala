@@ -1,7 +1,6 @@
 package io.apilet.nio4s.internal
 
 import io.apilet.nio4s.{IOError, IOErrors, JvmWorker, TcpContext, Worker}
-import io.apilet.nio4s.TcpContext
 
 import java.net.{InetAddress, SocketOption}
 import java.nio.ByteBuffer
