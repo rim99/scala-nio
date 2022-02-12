@@ -1,20 +1,36 @@
-## nio4s
+# apilet
 
-"nio4s", is short for "Network I/O For Scala".
+The apilet is a high performance non-blocking embedded HTTP server library for Scala, on both JVM and Native platform. It is mainly for internal network usage. If apilet-based services are required to exposed to external networks, an HTTP gateway, like Nginx or Apache Server, is always recommended. 
 
-This is a network I/O runtime library designed for Scala community, both JVM and Native. It only depends on infrastructures provided by languages and operating systems.
+Features:
+* One event loop per thread
+* NIO on both JVM and Native (TODO)
+* HTTP/1.1 (TODO)
+* HTTP2 (TODO)
+* SpringBoot-like Router (TODO)
 
-### Roadmap
+## Component Stack
 
-The first step is to implement on **JVM** with minimal usage of Java's `selector` system.
+apilet is loosely coupled by a few component. Including:
+* `apilet-nio`
+* `apilet-http`
+* `apilet-router`
 
-The second step is to implement on **Native** with support for `epoll` and `select`. `kqueue` is also considered, but not the top priority.
+The lower one depends on all its upper components. So for library developers, perhaps you only need `apilet-nio` and/or `apilet-http`.
 
-The next step is to implement on **Native** with support for `io_uring`. 
+## NIO 
 
-### Usage
+"apilet-nio", is a network I/O runtime library designed for Scala community, both JVM and Native. The core functionality is inspired by Nginx `event` mechanism.
 
-This is a normal sbt project. You can compile code with `sbt compile`, run it with `sbt run`, and `sbt console` will start a Scala 3 REPL.
+The NIO service on JVM is built upon `java.nio.channels.Selector`. 
 
-For more information on the sbt-dotty plugin, see the
-[scala3-example-project](https://github.com/scala/scala3-example-project/blob/main/README.md).
+> On Native, it is built upon `libev`.
+> TBD
+
+## HTTP protocol
+
+TBD
+
+## Router
+
+TBD
