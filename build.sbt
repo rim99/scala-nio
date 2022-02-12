@@ -2,15 +2,6 @@ ThisBuild / organization := "io.apilet"
 ThisBuild / scalaVersion := "3.1.0"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
 
-lazy val nio4s = project.in(file("."))
-  .settings(
-    name := "nio4s",
-  )
-  .aggregate(
-    `core`,
-    `jvm`,
-  )
-
 val loggingDep = Seq(
   "com.outr" %% "scribe" % "3.6.10"
 )
@@ -34,13 +25,29 @@ scalacOptions ++= {
   )
 }
 
-lazy val core = project.in(file("core"))
+lazy val apilet = project.in(file("."))
+  .settings(
+    name := "apilet",
+  )
+  .aggregate(
+    `nio-core`,
+    `nio-jvm`,
+    `nio-example-mock-http`,
+  )
+
+lazy val `nio-core` = project.in(file("nio-core"))
   .settings(
     libraryDependencies ++= testDep
   )
 
-lazy val jvm = project.in(file("jvm"))
-  .dependsOn(core)
+lazy val `nio-jvm` = project.in(file("nio-jvm"))
+  .dependsOn(`nio-core`)
   .settings(
     libraryDependencies ++= testDep
+  )
+lazy val `nio-example-mock-http` = project.in(file("nio-example-mock-http"))
+  .dependsOn(`nio-core`)
+  .dependsOn(`nio-jvm`)
+  .settings(
+    libraryDependencies ++= loggingDep
   )

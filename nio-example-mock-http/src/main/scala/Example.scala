@@ -11,15 +11,15 @@ object Example extends App:
 
       override def handleReadError(c: TcpContext, error: IOError): Unit =
         error match {
-          case IOErrors.EOF => println("Read failed: EOF")
-          case IOErrors.Exception(msg) => println(s"Read error: ${msg}")
+          case IOErrors.EOF => scribe.info("Read failed: EOF")
+          case IOErrors.Exception(msg) => scribe.info(s"Read error: ${msg}")
         }
       override def handleWriteError(c: TcpContext, error: IOError): Unit =
-        println(s"Write failed: $error")
+        scribe.info(s"Write failed: $error")
 
       override def handleRead(c: TcpContext, buffer: ByteBuffer, size: Int): Boolean =
         if size == 0 then
-          println("Read size is ZERO:0") // probably nothing to care
+          scribe.info("Read size is ZERO:0") // probably nothing to care
           c.close()
         else
           val response =
