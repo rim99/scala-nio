@@ -3,7 +3,7 @@ package io.apilet.nio4s
 import java.nio.ByteBuffer
 import scala.collection.mutable
 
-class ByteBufferPool(poolSize: Int = 2048, bufSize: Int = 512):
+class ByteBufferPool(poolSize: Int = 2048, bufSize: Int = 4096):
   // TODO: make these parameters can be configured by file/env parameters
 
   private val container = new mutable.ArrayDeque[ByteBuffer](poolSize)
