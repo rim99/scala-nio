@@ -33,8 +33,8 @@ class TcpContext(
       conn.read(buf) match
         case Right(received) =>
           lazy val potentialNexRound = !buf.hasRemaining && received > 0
-          val needMore = protocol.handleRead(TcpContext.this, buf, received)
-          if needMore && potentialNexRound then
+          val ret = protocol.handleRead(TcpContext.this, buf, received)
+          if ret == ProcessStatus.NeedMore && potentialNexRound then
             buf.clear()
             doRead(buf)
           else ()

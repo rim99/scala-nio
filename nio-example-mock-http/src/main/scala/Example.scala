@@ -22,7 +22,7 @@ object Example extends App:
         c: TcpContext,
         buffer: ByteBuffer,
         size: Int
-      ): Boolean =
+      ): ProcessStatus =
         if size == 0 then
           log("Read size is ZERO:0") // probably nothing to care
           c.close()
@@ -31,7 +31,7 @@ object Example extends App:
             "HTTP/1.1 200 OK\r\nServer: Nio4s\r\nConnection: keep-alive\r\nContent-Length: 5\r\n\r\nHello".getBytes
           val r = ByteBuffer.wrap(response)
           c.send(r)
-        false
+        ProcessStatus.Finished
 
   val connMgr = new JvmConnectionManager(WorkModes.Light)
   connMgr.addListener(5454, mockHttpProtocolFactory)

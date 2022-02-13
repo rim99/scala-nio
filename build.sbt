@@ -7,7 +7,8 @@ val loggingDep = Seq(
 )
 
 val testDep = Seq(
-  "org.scalatest" %% "scalatest" % "3.2.10" % "test"
+  "org.scalatest" %% "scalatest" % "3.2.10" % "test",
+  "org.scalatestplus" %% "mockito-3-12" % "3.2.10.0" % "test"
 )
 
 scalacOptions ++= {
@@ -33,6 +34,7 @@ lazy val apilet = project.in(file("."))
     `nio-core`,
     `nio-jvm`,
     `nio-example-mock-http`,
+    `http`,
   )
 
 lazy val `nio-core` = project.in(file("nio-core"))
@@ -45,9 +47,16 @@ lazy val `nio-jvm` = project.in(file("nio-jvm"))
   .settings(
     libraryDependencies ++= testDep
   )
+
 lazy val `nio-example-mock-http` = project.in(file("nio-example-mock-http"))
   .dependsOn(`nio-core`)
   .dependsOn(`nio-jvm`)
   .settings(
     libraryDependencies ++= loggingDep
+  )
+
+lazy val `http` = project.in(file("http"))
+  .dependsOn(`nio-core`)
+  .settings(
+    libraryDependencies ++= loggingDep ++ testDep
   )
