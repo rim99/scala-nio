@@ -4,7 +4,7 @@ The Apilet is a high performance non-blocking embedded HTTP server library for S
 
 Features:
 * One event loop per thread
-* NIO on both JVM and Native (TODO)
+* NIO on both JVM and *Native* (TODO)
 * HTTP/1.1 (TODO)
 * HTTP2 (TODO)
 * SpringBoot-like Router (TODO)
@@ -24,8 +24,9 @@ The lower one depends on all its upper components. So for library developers, pe
 
 The NIO service on JVM is built upon `java.nio.channels.Selector`. 
 
-> On Native, it is built upon `libev`.
-> TBD
+TODO:
+- Timer event
+- Native Platform support
 
 ## HTTP protocol
 
