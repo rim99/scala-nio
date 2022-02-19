@@ -15,14 +15,6 @@ trait HttpMessageHandler:
 trait StartLineHandler extends HttpMessageHandler:
   override val parserState = ParserStates.StartLine
 
-class RequestLineHandler extends StartLineHandler:
-
-  override def parse(
-    buf: ByteBuffer,
-    limit: Int
-  ): (Int, Either[ParseError, ProcessStatus]) =
-    (0, Right(ProcessStatus.Finished))
-
 class StatusLineHandler extends StartLineHandler:
 
   override def parse(
@@ -53,3 +45,7 @@ object SpecialChars:
   val SP: Char = ' '
   val CR: Char = '\r'
   val LF: Char = '\n'
+  val DOT: List[Char] = List('.')
+  val HTTP_ : List[Char] = List('H','T','T','P', '/')
+  val CRLF: List[Char] = List(SpecialChars.CR, SpecialChars.LF)
+  val doubleCRLF: List[Char] = List(SpecialChars.CR, SpecialChars.LF, SpecialChars.CR, SpecialChars.LF)

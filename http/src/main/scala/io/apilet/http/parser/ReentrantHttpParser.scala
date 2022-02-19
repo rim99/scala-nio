@@ -43,21 +43,6 @@ private[http] class ReentrantHttpParser(
 
   def getProcessedBytes: Int = processedBytes
 
-object HttpParser:
-
-  def apply(mode: ParseMode): ReentrantHttpParser =
-    val startLineHandler = mode match
-      case ParseModes.Server => new RequestLineHandler
-      case ParseModes.Client => new StatusLineHandler
-
-    val headersHandler = new HeadersHandler
-    val bodyHandler = new BodyHandler
-    new ReentrantHttpParser(
-      startLineHandler,
-      headersHandler,
-      bodyHandler
-    )
-
 sealed trait ParseMode
 
 object ParseModes:

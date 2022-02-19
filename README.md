@@ -1,6 +1,6 @@
 # APILET
 
-The Apilet is a high performance non-blocking embedded HTTP server library for Scala, on both JVM and Native platform. It is mainly for internal network usage. If apilet-based services are required to exposed to external networks, an HTTP gateway, like Nginx or Apache Server, is always recommended. 
+The Apilet is a high performance non-blocking embedded HTTP server library for Scala, on both JVM and Native platform.
 
 Features:
 * One event loop per thread
