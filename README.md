@@ -1,37 +1,21 @@
-# APILET
+# Scala-Nio
 
-The Apilet is a high performance non-blocking embedded HTTP server library for Scala, on both JVM and Native platform.
+The Scala-Nio is a high performance non-blocking network library for Scala, on both JVM and Native platform. The core functionality is inspired by Nginx `event` mechanism.
+
+The NIO service on JVM is built upon `java.nio.channels.Selector`.
 
 Features:
 * One event loop per thread
 * NIO on both JVM and *Native* (TODO)
-* HTTP/1.1 (TODO)
-* HTTP2 (TODO)
-* SpringBoot-like Router (TODO)
 
-## Component Stack
-
-Apilet is loosely coupled by a few components, including:
-* `apilet-nio`
-* `apilet-http`
-* `apilet-router`
-
-The lower one depends on all its upper components. So for library developers, perhaps you only need `apilet-nio` and/or `apilet-http`.
-
-## NIO 
-
-"apilet-nio", is a network I/O runtime library designed for Scala community, both JVM and Native. The core functionality is inspired by Nginx `event` mechanism.
-
-The NIO service on JVM is built upon `java.nio.channels.Selector`. 
-
-TODO:
+## TODO:
 - Timer event
 - Native Platform support
 
-## HTTP protocol
+## Example
 
-TBD
+Please check the `Example.scala` under `nio-example-mock-http` package
 
-## Router
+## LICENSE
 
-TBD
+MIT

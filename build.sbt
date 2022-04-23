@@ -1,4 +1,4 @@
-ThisBuild / organization := "io.apilet"
+ThisBuild / organization := "io.rim99"
 ThisBuild / scalaVersion := "3.1.0"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
 
@@ -26,15 +26,14 @@ scalacOptions ++= {
   )
 }
 
-lazy val apilet = project.in(file("."))
+lazy val `scala-nio` = project.in(file("."))
   .settings(
-    name := "apilet",
+    name := "scala-nio",
   )
   .aggregate(
     `nio-core`,
     `nio-jvm`,
     `nio-example-mock-http`,
-    `http`,
   )
 
 lazy val `nio-core` = project.in(file("nio-core"))
@@ -53,10 +52,4 @@ lazy val `nio-example-mock-http` = project.in(file("nio-example-mock-http"))
   .dependsOn(`nio-jvm`)
   .settings(
     libraryDependencies ++= loggingDep
-  )
-
-lazy val `http` = project.in(file("http"))
-  .dependsOn(`nio-core`)
-  .settings(
-    libraryDependencies ++= loggingDep ++ testDep
   )

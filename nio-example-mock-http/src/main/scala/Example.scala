@@ -1,4 +1,4 @@
-import io.apilet.nio4s.*
+import io.rim99.nio4s.*
 import scribe.trace as log
 
 import java.nio.ByteBuffer
