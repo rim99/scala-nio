@@ -14,7 +14,7 @@ class PackageMethodsTest
       val buf = ByteBuffer.wrap("abc".getBytes)
       val chars= List('a', 'b', 'c')
 
-      val res = verifyNext(buf, chars)
+      val res = buf.verifyNext(chars)
 
       res shouldBe true
     }
@@ -23,7 +23,7 @@ class PackageMethodsTest
       val buf = ByteBuffer.wrap("abc".getBytes)
       val chars = List('a', 'b', 'd')
 
-      val res = verifyNext(buf, chars)
+      val res = buf.verifyNext(chars)
 
       res shouldBe false
     }
@@ -32,7 +32,7 @@ class PackageMethodsTest
       val buf = ByteBuffer.wrap("x".getBytes)
       val chars = List('a', 'b', 'd')
 
-      val res = verifyNext(buf, chars)
+      val res = buf.verifyNext(chars)
 
       res shouldBe false
     }

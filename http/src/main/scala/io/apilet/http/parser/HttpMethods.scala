@@ -19,38 +19,38 @@ class HttpMethodParser:
   def parse(buf: ByteBuffer): Option[HttpMethod] =
     buf.get match
       case 'G' =>
-        Option.when(verifyNext(buf, HttpMethod.GET.rest)) {
+        Option.when(buf.verifyNext(HttpMethod.GET.rest)) {
           HttpMethod.GET
         }
       case 'P' =>
         buf.get match
           case 'O' =>
-            Option.when(verifyNext(buf, HttpMethod.POST.rest)) {
+            Option.when(buf.verifyNext(HttpMethod.POST.rest)) {
               HttpMethod.POST
             }
           case 'U' =>
-            Option.when(verifyNext(buf, HttpMethod.PUT.rest)) {
+            Option.when(buf.verifyNext(HttpMethod.PUT.rest)) {
               HttpMethod.PUT
             }
           case _ => None
       case 'D' =>
-        Option.when(verifyNext(buf, HttpMethod.DELETE.rest)) {
+        Option.when(buf.verifyNext(HttpMethod.DELETE.rest)) {
           HttpMethod.DELETE
         }
       case 'H' =>
-        Option.when(verifyNext(buf, HttpMethod.HEAD.rest)) {
+        Option.when(buf.verifyNext(HttpMethod.HEAD.rest)) {
           HttpMethod.HEAD
         }
       case 'C' =>
-        Option.when(verifyNext(buf, HttpMethod.CONNECT.rest)) {
+        Option.when(buf.verifyNext(HttpMethod.CONNECT.rest)) {
           HttpMethod.CONNECT
         }
       case 'O' =>
-        Option.when(verifyNext(buf, HttpMethod.OPTIONS.rest)) {
+        Option.when(buf.verifyNext(HttpMethod.OPTIONS.rest)) {
           HttpMethod.OPTIONS
         }
       case 'T' =>
-        Option.when(verifyNext(buf, HttpMethod.TRACE.rest)) {
+        Option.when(buf.verifyNext(HttpMethod.TRACE.rest)) {
           HttpMethod.TRACE
         }
       case _ => None

@@ -25,7 +25,7 @@ class RequestMessageIdentifierTest
       parser.httpMethod shouldEqual HttpMethod.GET
       parser.httpVersion shouldEqual HttpVersion.HTTP11
       parser.getURI shouldEqual "/abc"
-      parser.initialBuffer shouldBe buf
+      parser.buffer shouldBe buf
     }
 
     it("should return HttpMethodNotImplemented if the HTTP method in buffer is unknown") {

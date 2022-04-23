@@ -15,7 +15,7 @@ import scala.util.{Failure, Success, Try}
   *     - identify HTTP/2 connection preface
   */
 class RequestMessageIdentifier(
-  buf: ByteBuffer,
+  buffer: ByteBuffer,
   httpMethodParser: HttpMethodParser = HttpMethodParsers.instance
 ):
 
@@ -26,10 +26,10 @@ class RequestMessageIdentifier(
     uriBegin: Int = 0,
     uriEnd: Int = 0,
     httpVersion: Option[HttpVersion] = None
-  ): Either[ParseError, HttpRequestParser] =
+  ): Either[ParseError, Http11RequestBuilder] =
     state match
       case RequestLineHandler.State.HttpMethod =>
-        val parsed = httpMethodParser.parse(buf)
+        val parsed = httpMethodParser.parse(buffer)
         parsed match
           case Some(m) =>
             doParse(
@@ -38,7 +38,7 @@ class RequestMessageIdentifier(
             )
           case None => Left(ParseErrors.HttpMethodNotImplemented)
       case RequestLineHandler.State.AfterHttpMethod =>
-        Try(buf.get) match
+        Try(buffer.get) match
           case Success(SpecialChars.SP) =>
             doParse(
               state = RequestLineHandler.State.URI,
@@ -46,10 +46,10 @@ class RequestMessageIdentifier(
             )
           case _ => Left(ParseErrors.BadRequest)
       case RequestLineHandler.State.URI =>
-        val uriBegin = buf.position()
-        Try(buf.get) match
+        val uriBegin = buffer.position()
+        Try(buffer.get) match
           case Success(SpecialChars.SP) => Left(ParseErrors.BadRequest)
-          case Success(_) => findNextSP(buf) match
+          case Success(_) => buffer.search(SpecialChars.SP) match
             case Some(end) =>
               doParse(
                 state = RequestLineHandler.State.HTTPVersion,
@@ -60,10 +60,10 @@ class RequestMessageIdentifier(
             case None => Left(ParseErrors.URITooLarge)
           case Failure(_) => Left(ParseErrors.BadRequest)
       case RequestLineHandler.State.HTTPVersion =>
-        val hasHttp = verifyNext(buf, SpecialChars.HTTP_)
-        val majorVersion = Try(buf.get)
-        val hasDot = verifyNext(buf, SpecialChars.DOT)
-        val minorVersion = Try(buf.get)
+        val hasHttp = buffer.verifyNext(SpecialChars.HTTP_)
+        val majorVersion = Try(buffer.get)
+        val hasDot = buffer.verifyNext(SpecialChars.DOT)
+        val minorVersion = Try(buffer.get)
         val httpVersion: Option[HttpVersion] = Option
             .when(hasHttp && hasDot) {
               (majorVersion, minorVersion) match
@@ -84,10 +84,10 @@ class RequestMessageIdentifier(
           case None =>
             Left(ParseErrors.HttpVersionNotSupported)
       case RequestLineHandler.State.AfterHTTPVersion =>
-        val ok = verifyNext(buf, SpecialChars.CRLF)
+        val ok = buffer.verifyNext(SpecialChars.CRLF)
         if ok then
-          val parser = new HttpRequestParser(
-            initialBuffer = buf,
+          val parser = new Http11RequestBuilder(
+            buffer = buffer,
             httpMethod = httpMethod.get,
             httpVersion = httpVersion.get,
             uriOffset = uriBegin,
@@ -97,7 +97,7 @@ class RequestMessageIdentifier(
         else Left(ParseErrors.BadRequest)
 
 
-  def process: Either[ParseError, HttpRequestParser] = doParse(state = RequestLineHandler.State.HttpMethod)
+  def process: Either[ParseError, HttpRequestBuilder] = doParse(state = RequestLineHandler.State.HttpMethod)
 
 
 object RequestLineHandler:
